@@ -114,7 +114,7 @@
         if (!r.results.length) list.appendChild(h('li', { class: 'item muted' }, 'ไม่พบสมาชิก'));
         for (const m of r.results) list.appendChild(h('li', { class: 'item', onclick: () => memberView(m.id) },
           h('div', { class: 'dot out' }, (m.nickname || '?').slice(0, 1)),
-          h('div', { class: 'main' }, h('div', { class: 't' }, m.nickname || '-'), h('div', { class: 's' }, m.id + (m.gender ? ' · ' + m.gender : ''))),
+          h('div', { class: 'main' }, h('div', { class: 't' }, m.nickname || '-'), h('div', { class: 's' }, m.id)),
           h('div', { class: 'muted' }, '›')));
         mount(results, list);
       } catch (e) { mount(results, errBox(e)); }
@@ -162,7 +162,7 @@
     mount(app,
       backBtn(),
       h('div', { class: 'card sky' },
-        h('div', { class: 'bal-label' }, m.nickname + ' · ' + m.id + (m.gender ? ' · ' + m.gender : '')),
+        h('div', { class: 'bal-label' }, m.nickname + ' · ' + m.id),
         h('div', { class: 'bal' }, money(d.balance)),
         h('div', { class: 'stats' },
           h('div', { class: 'stat' }, h('div', { class: 'k' }, 'เครดิตที่ได้รวม'), h('div', { class: 'v' }, money(d.credit))),
@@ -305,7 +305,6 @@
   }
 
   function newMemberSheet() {
-    let gender = '';
     const id = h('input', { inputmode: 'numeric', maxlength: 7, class: 'code', placeholder: '7 หลักท้าย' });
     digits(id, 7);
     const nick = h('input', { maxlength: 40, placeholder: 'ชื่อเล่น' });
@@ -316,13 +315,12 @@
       if (!/^\d{7}$/.test(id.value)) return out.appendChild(errBox({ message: 'เบอร์ 7 หลักท้าย' }));
       if (!nick.value.trim()) return out.appendChild(errBox({ message: 'ใส่ชื่อเล่น' }));
       btn.disabled = true;
-      try { const r = await call('/api/admin/member/create', { id: id.value, nickname: nick.value, gender }); await memberView(r.id); pinSheet(r.id, nick.value.trim(), r.pin); }
+      try { const r = await call('/api/admin/member/create', { id: id.value, nickname: nick.value }); await memberView(r.id); pinSheet(r.id, nick.value.trim(), r.pin); }
       catch (e) { if (e.status !== 401) out.appendChild(errBox(e)); btn.disabled = false; }
     });
     openSheet(h('h2', null, 'สมาชิกใหม่'),
       h('label', null, 'เบอร์โทร 7 หลักท้าย (ใช้เป็นเลขสมาชิก)'), id,
       h('label', null, 'ชื่อเล่น'), nick,
-      h('label', null, 'เพศ'), chips([['ชาย', 'ชาย'], ['หญิง', 'หญิง'], ['', 'ไม่ระบุ']], '', (v) => { gender = v; }),
       h('div', { class: 'sp' }), btn, out, h('div', { class: 'sp' }), h('button', { class: 'btn ghost', type: 'button', onclick: closeSheet }, 'ยกเลิก'));
   }
 
