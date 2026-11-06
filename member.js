@@ -82,11 +82,11 @@
     });
     mount(app, h('div', { class: 'card' },
       h('h2', null, first ? 'ตั้ง PIN ของคุณเอง' : 'เปลี่ยน PIN'),
-      first ? h('div', { class: 'msg info' }, 'PIN ที่ได้จากร้านใช้ได้ครั้งเดียว กรุณาตั้ง PIN ใหม่ที่จำได้แต่คนอื่นเดายาก') : null,
+      first ? h('div', { class: 'msg info' }, 'PIN ที่ได้จากร้านใช้ได้ครั้งเดียว กรุณาตั้ง PIN ใหม่ที่คุณจำได้') : null,
       oldPinKnown ? null : [h('label', null, 'PIN เดิม'), oldPin],
       h('label', null, 'PIN ใหม่ 6 หลัก'), p1,
       h('label', null, 'ยืนยัน PIN ใหม่'), p2,
-      h('p', { class: 'muted small' }, 'ห้ามใช้เลขเรียง (123456) เลขซ้ำ (111111) หรือเลขเบอร์ตัวเอง'),
+      h('p', { class: 'muted small' }, 'ตัวเลข 6 หลักอะไรก็ได้ แต่ต้องไม่ซ้ำกับ PIN เดิม'),
       h('div', { class: 'sp' }), btn, out,
       first ? null : h('div', { class: 'sp' }),
       first ? null : h('button', { class: 'btn ghost', type: 'button', onclick: () => home() }, 'ยกเลิก')));

@@ -1,5 +1,5 @@
 // Teddy Member API — Cloudflare Worker + D1
-// v1.0 (2026-11-07)
+// v1.1 (2026-11-07) — ลูกค้าตั้ง PIN อะไรก็ได้ (6 หลัก, ห้ามซ้ำ PIN เดิม)
 //
 // Bindings (Worker → Settings):
 //   D1 database binding  DB
@@ -8,7 +8,7 @@
 //   Secret  STAFF_PASSWORD  (optional) maid password, ≥ 8 chars — can only top up / deduct
 //   Text    ALLOWED_ORIGIN  e.g. https://phoneyjung.github.io  (comma-separated if several)
 
-const VERSION = '1.0';
+const VERSION = '1.1';
 const SCHEMA_VERSION = '1';
 
 const MEMBER_TTL = 60 * 60;          // member session 1 h
@@ -272,8 +272,7 @@ async function memberChangePin(env, req, body, ip) {
   const m = await env.DB.prepare(`SELECT id, pin_salt, pin_hash FROM members WHERE id=?`).bind(s.member_id).first();
   if (!m || !safeEq(await pinHash(env, m.pin_salt, m.id, oldPin), m.pin_hash)) throw new HttpError(401, 'badpin', 'PIN เดิมไม่ถูกต้อง');
   if (!rePin.test(newPin)) throw new HttpError(400, 'bad', 'PIN ใหม่ต้องเป็นตัวเลข 6 หลัก');
-  if (newPin === oldPin) throw new HttpError(400, 'weak', 'PIN ใหม่ต้องไม่ซ้ำกับ PIN เดิม');
-  if (weakPin(newPin, m.id)) throw new HttpError(400, 'weak', 'PIN นี้เดาง่ายเกินไป (เช่น 123456, 111111, เลขเรียง หรือเลขเบอร์ตัวเอง) กรุณาตั้งใหม่');
+  if (newPin === oldPin) throw new HttpError(400, 'same', 'PIN ใหม่ต้องไม่ซ้ำกับ PIN เดิม');
   const salt = randToken(16);
   await env.DB.batch([
     env.DB.prepare(`UPDATE members SET pin_salt=?, pin_hash=?, must_change=0, updated_at=? WHERE id=?`)
